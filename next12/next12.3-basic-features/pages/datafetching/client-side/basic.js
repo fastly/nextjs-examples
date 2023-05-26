@@ -1,0 +1,25 @@
+import { useState, useEffect } from 'react';
+
+export default function Basic() {
+  const [data, setData] = useState(null)
+  const [isLoading, setLoading] = useState(false)
+
+  useEffect(() => {
+    setLoading(true)
+    fetch('https://http-me.glitch.me/json')
+      .then((res) => res.json())
+      .then((data) => {
+        setData(data)
+        setLoading(false)
+      })
+  }, [])
+
+  if (isLoading) return <p>Loading...</p>
+  if (!data) return <p>No data</p>
+
+  return (
+    <div>
+      <pre>{JSON.stringify(data)}</pre>
+    </div>
+  )
+};

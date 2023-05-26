@@ -1,0 +1,320 @@
+import Head from 'next/head';
+import Image from 'next/image';
+import Link from 'next/link';
+import styles from '../styles/Home.module.css';
+import MyComponent from "../components/MyComponent";
+
+export default ({children}) => (
+  <div className={styles.container}>
+    <Head>
+      <title>@fastly/next-compute-js Examples</title>
+      <meta name="description" content="@fastly/next-compute-js Examples" />
+      <link rel="icon" href="/favicon.ico" />
+    </Head>
+    {children}
+    <footer className={styles.footer}>
+      <div>
+        <a href="https://vercel.com" target="_blank" rel="noopener noreferrer">
+          Next.js by Vercel
+        </a>
+      </div>
+      <div className={styles.logoRow}>
+        <span>
+          Running on
+        </span>
+        <span className={styles.logo}>
+          <Image src="/fastly.png" alt="Fastly Logo" width={50} height={20} />
+        </span>
+      </div>
+    </footer>
+  </div>
+);
+
+
+# @fastly/next-compute-js Demo Pages
+
+This site is built using Next.js 12.3.0 on @fastly/next-compute-js v2,
+and demonstrates various aspects of Next.js.
+
+This page lives at `index.mdx` and is written using MDX.
+
+## Routing
+
+Next.js routes based on folder structure.
+
+For more information, see [Routing](https://github.com/vercel/next.js/blob/v12.3.0/docs/routing/introduction.md).
+
+### Static files
+
+Static File Serving (files in /public dir)
+* `public/fastly.png` → [/fastly.png](/fastly.png)
+* `public/favicon.ico` → [/favicon.ico](/favicon.ico)
+
+### Simple and nested routes
+
+* `pages/foo.js` → [/foo](/foo)
+* `pages/foo2.js` → [/foo2](/foo2)
+* `pages/routing/static/about.js` → [/routing/static/about](/routing/static/about)
+
+### Index routes
+
+The router will automatically route files named index to the root of the directory.
+
+* `pages/routing/static/index.js` → [/routing/static](/routing/static)
+
+### Dynamic routes
+
+Next.js allows the use of brackets in the path. This allows you to match named parameters.
+
+#### Segments
+
+* `pages/routing/dynamic/simple/[id].js` → `/routing/dynamic/simple/:id`
+  * [/routing/dynamic/simple/about](/routing/dynamic/simple/about) - `id` receives `'about'`
+  * [/routing/dynamic/simple/hello](/routing/dynamic/simple/hello) - `id` receives `'hello'`
+
+* `pages/routing/dynamic/[intermediate]/post.js` → `/routing/dynamic/:intermediate/post`
+  * [/routing/dynamic/about/post](/routing/dynamic/about/post) - `intermediate` receives `'about'`
+  * [/routing/dynamic/hello/post](/routing/dynamic/hello/post) - `intermediate` receives `'post'`
+
+#### Catch-all routes
+
+`[...args]` receives all remaining segments as an array. However, not specifying anything is an error.
+
+* `pages/routing/dynamic/catchall/[...args].js`
+  * [/routing/dynamic/catchall/a](/routing/dynamic/catchall/a) - `args` receives `['a']`
+  * [/routing/dynamic/catchall/a/b](/routing/dynamic/catchall/a/b) - `args` receives `['a', 'b']`
+  * [/routing/dynamic/catchall/a/b/c](/routing/dynamic/catchall/a/b/c) - `args` receives `['a', 'b', 'c']`
+  * [/routing/dynamic/catchall](/routing/dynamic/catchall) (this is a 404)
+
+#### Optional catch-all routes
+
+`[[...args]]` is similar to the above, but does not result in an error if nothing is specified.
+Dynamic Routed Pages - optional catch all
+* `pages/routing/dynamic/optcatchall/[[...args]].js`
+  * [/routing/dynamic/optcatchall/a](/routing/dynamic/optcatchall/a) - `args` receives `['a']`
+  * [/routing/dynamic/optcatchall/a/b](/routing/dynamic/optcatchall/a/b) - `args` receives `['a', 'b']`
+  * [/routing/dynamic/optcatchall/a/b/c](/routing/dynamic/optcatchall/a/b/c) - `args` receives `['a', 'b', 'c']`
+  * [/routing/dynamic/optcatchall](/routing/dynamic/optcatchall) - No `args` param is created.
+
+## HTML Generation
+
+Next.js uses various techniques, both at build time and runtime, to generate
+and deliver HTML to the visitor as quickly as possible.
+
+### Static Generation
+
+Next.js will statically generate as many pages entirely at build time as possible.
+This is possible for pages that need no external services to build the page.
+
+For example, this page is rendered statically:
+* [/routing/static/about](/routing/static/about)
+
+### Server-side Generation
+
+If a page exports `getStaticProps()`, then that function is called at build
+time, and returns props used to render the page component.
+This is enough to render the entire page, so it is rendered statically
+in this case as well.
+
+Server Side Generation - with Static Props
+* [/datafetching/props](/datafetching/props)
+
+If a page has dynamic path segments (see Dynamic Routing above), and
+exports `getStaticPaths()`, then that function is called at build time, and
+returns the path segments that should be used to statically generate those pages.
+
+`getStaticPaths()` must return an object that contains a `fallback` value, which
+can be the string `blocking`, or one of the boolean values `true` or `false`.
+
+#### Blocking
+
+If `getStaticPaths()` returns `fallback: 'blocking'`, then pages specified in this way are
+generated at build time. Other routes will have their page rendered at runtime.
+This means that for those pages, nothing is generated at build itme, and the
+visitor will incur a runtime wait until the content is rendered.
+
+This rendered copy is then cached, so that future visitors will receive that copy
+instead of having to wait.
+
+Server Side Generation - with Static Paths (blocking)
+* `pages/datafetching/paths-blocking/[id].js`
+  * [/datafetching/paths-blocking/foo](/datafetching/paths-blocking/foo) - prerendered, and `id` receives `'foo'`
+  * [/datafetching/paths-blocking/bar](/datafetching/paths-blocking/bar) - prerendered, and `id` receives `'bar'`
+  * [/datafetching/paths-blocking/baz](/datafetching/paths-blocking/baz) - renders at runtime, and `id` receives `baz`
+
+#### No fallback
+
+If `getStaticPaths()` returns `fallback: false`, then only the pages generated statically
+in this way are valid; other routes serve a 404.
+
+Server Side Generation - with Static Paths (no fallback)
+* `pages/datafetching/paths-nofallback/[id].js`
+  * [/datafetching/paths-nofallback/foo](/datafetching/paths-nofallback/foo) - prerendered, and `id` receives `'foo'`
+  * [/datafetching/paths-nofallback/bar](/datafetching/paths-nofallback/bar) - prerendered, and `id` receives `'bar'`
+  * [/datafetching/paths-nofallback/baz](/datafetching/paths-nofallback/baz) - 404
+
+#### With Fallback
+
+If `getStaticPaths()` returns `fallback: true`, then pages specified in this way are
+generated at build time. Other routes will have their page render a "fallback" version.
+
+This fallback version can be used to display placeholders:
+* The page’s props will be empty.
+* With the router (`useRouter`), if the fallback is currently being rendered, `router.isFallback` will be true.
+
+In the background, the server will continue to build a JSON representation of the props. Once this is ready,
+the data will come across and populate the page.
+
+Additionally, an HTML version of the page will be built.
+This rendered copy is then cached, so that future visitors will receive that copy
+instead of having to wait.
+
+`fallback: true` behaves the same as `fallback: 'blocking'` under some circumstances.
+
+For more details, see [Fallback pages](https://github.com/vercel/next.js/blob/v12.3.0/docs/api-reference/data-fetching/get-static-paths.md#fallback-pages).
+
+* `pages/datafetching/paths-fallback/[id].js` (with fallback)
+  * [/datafetching/paths-fallback/foo](/datafetching/paths-fallback/foo) - prerendered, and `id` receives `'foo'`
+  * [/datafetching/paths-fallback/bar](/datafetching/paths-fallback/bar) - prerendered, and `id` receives `'bar'`
+  * [/datafetching/paths-fallback/baz](/datafetching/paths-fallback/baz) - placeholder page will render, then `id` receives `baz`
+
+### Server-side rendering
+
+If a page exports `getServerSideProps()`, then this function gets called at runtime, on the
+server. The function generates values to be used as props to call the page component.
+
+* `pages/datafetching/ssr/index.js`
+  * [/datafetching/ssr](/datafetching/ssr)
+
+### Client-side fetching
+
+Next.js renders React components normally, so it's possible to use normal mechanisms such
+as `useEffect()` with `fetch()` to fetch data after the component has loaded in the browser.
+
+* `pages/datafetching/client-side/base.js` - Client-Side Fetching with `useEffect()` and `fetch()`
+  * [/datafetching/client-side/basic](/datafetching/client-side/basic)
+
+It's also often possible to use client-side fetching libraries, such as SWR from Vercel.
+
+* `pages/datafetching/client-side/swr.js` - Client-Side Fetching with SWR
+  * [/datafetching/client-side/swr](/datafetching/client-side/swr)
+
+### API Routes
+
+Routes under `pages/api` are called as "API Routes", and should return a JSON
+rather than try to render a page.
+
+* `pages/api/demo.js` → [/api/demo](/api/demo)
+* `pages/api/hello/[name].js`
+  * [/api/hello/John](/api/hello/John) - `name` receives `'John'`
+
+## Client-side transitioning
+
+Using either the `<Link>` component or the `router.push()` function,
+you can transition to a new page without doing a full page refresh.
+
+<Link href={'/foo2'}>Link to foo2</Link>, generated by Link tag (should not
+cause a full page refresh).
+
+## Shallow routing
+
+Using the `router.push()` function, you can perform a "shallow" route,
+which allows you to change the URL (so long as you stay on the same page)
+without losing state.
+
+The "Shallow route" button on the linked page performs shallow routing.
+* [/foo](/foo)
+
+## Headers
+
+Headers can be specified in `next.config.js`.
+
+For example, this application specifies the following:
+
+```javascript
+module.exports = {
+  async headers() {
+    return [
+      {
+        source: '/foo',
+        headers: [
+          {
+            key: 'x-custom-header',
+            value: 'my custom header value',
+          },
+        ],
+      },
+    ];
+  },
+};
+```
+
+Accessing this URL will add that header to the response.
+* [/foo](/foo)
+
+## CSS
+
+* Global CSS
+This page loads `/styles/globals.css` globally
+(via the _app.js file).
+
+* CSS Modules
+This page also uses a CSS Module (`/styles/Home.module.css`) to apply the Inter font as well as
+apply styles to the footer section.
+
+A CSS Module (`/styles/MyComponent.module.css`) is used to style the `MyComponent` component described below.
+
+## React Components for page composition
+
+The following is a React component imported from the project tree at
+/components/MyComponent.
+
+<MyComponent />
+
+## Font Optimization
+
+This page loads the Inter font using [Font Optimization](https://github.com/vercel/next.js/blob/v12.3.0/docs/basic-features/font-optimization.md).
+
+The code snippet below exists in /pages/_document.jsx. This
+
+```jsx
+<Head>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter&display=optional"
+    rel="stylesheet"
+  />
+</Head>
+```
+
+This feature expands the stylesheet and inlines it into the HTML output:
+```html
+<style data-href="https://fonts.googleapis.com/css2?family=Inter&display=optional">
+  @font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-display: optional;
+    src: url(https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfMZs.woff) format('woff')
+  }
+  <!-- more -->
+</style>
+```
+
+This works with hosted Google Fonts and Typekit web fonts, and avoids the round trip of having to fetch and resolve the stylesheet before
+fonts are applied.
+
+## Using MDX
+
+This page is written using MDX. This requires certain packages and some setup that have been done in `next.config.js`.
+
+For more information, see [Using MDX with Next.js](https://github.com/vercel/next.js/blob/v12.3.0/docs/advanced-features/using-mdx.md).
+
+The following page is also written in MDX.
+* `pages/foo2.mdx` → [/foo2](/foo2)
+
+## Custom Error Page
+
+Attempting to access a non-existent page will render the 404 page.
+
+Custom Error Pages -
+* [/not-exist](/not-exist) - should render 404
