@@ -1,0 +1,7 @@
+/node_modules
+/.next
+/.vercel
+
+# Since this is a demo repository, we do not commit the next-compute-js directory.
+# In a real app we would commit it.
+/next-compute-js

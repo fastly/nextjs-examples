@@ -1,0 +1,24 @@
+{
+  "name": "next13_4-basic-features",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "fastly-build": "npx @fastly/next-compute-js build",
+    "fastly-serve": "npm run fastly-build && cd next-compute-js && fastly compute serve --verbose",
+    "fastly-deploy": "npm run fastly-build && cd next-compute-js && fastly compute publish --verbose"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastly/next-compute-js": "^2.0.0-alpha.10",
+    "@mdx-js/loader": "^2.2.1",
+    "@next/mdx": "^12.3.0",
+    "next": "13.4.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "swr": "^1.3.0"
+  }
+}
