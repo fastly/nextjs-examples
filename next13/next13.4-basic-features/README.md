@@ -1,4 +1,4 @@
-# Basic features with Next.js 12.3.0
+# Basic features with Next.js 13.4
 
 ```shell
 % npm install

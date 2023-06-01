@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@fastly/next-compute-js": "^2.0.0-alpha.8",
+    "@fastly/next-compute-js": "^2.0.0-alpha.9",
     "@mdx-js/loader": "^2.2.1",
     "@next/mdx": "^12.3.0",
     "next": "13.4.4",
