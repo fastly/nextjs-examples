@@ -224,7 +224,7 @@ Files cached using the mechanism above can have their cache purged on-demand by
 calling `res.revalidate(route)` from within an API route.
 
 For example, to force the `/datafetching/props-revalidate-false` route above to revalidate,
-call [/api/revalidate/props-revalidate-false](/api/revalidate/props-revalidate-false).
+call [/api/datafetching/props-revalidate-false](/api/datafetching/props-revalidate-false).
 
 ```javascript
 export default async function handler(req, res) {
